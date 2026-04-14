@@ -1,8 +1,14 @@
 public with sharing class OpportunityTriggerHandler {
 
     private static final String CLOSED_WON = 'Closed Won';
+    public static Boolean skipEurConversion = false;
 
     public static void onAfterUpdate(List<Opportunity> newOpps, Map<Id, Opportunity> oldMap) {
+        handleClosedWonLogic(newOpps, oldMap);
+        handleEurConversion(newOpps, oldMap);
+    }
+
+    private static void handleClosedWonLogic(List<Opportunity> newOpps, Map<Id, Opportunity> oldMap) {
         List<Opportunity> closedWonOpps = filterClosedWonOpps(newOpps, oldMap);
         if (closedWonOpps.isEmpty()) {
             return;
@@ -27,6 +33,24 @@ public with sharing class OpportunityTriggerHandler {
         }
         if (!tasksToInsert.isEmpty()) {
             insert tasksToInsert;
+        }
+    }
+
+    private static void handleEurConversion(List<Opportunity> newOpps, Map<Id, Opportunity> oldMap) {
+        if (skipEurConversion) {
+            return;
+        }
+
+        Set<Id> oppIds = new Set<Id>();
+        for (Opportunity opp : newOpps) {
+            Opportunity oldOpp = oldMap.get(opp.Id);
+            if (opp.Amount != oldOpp.Amount && opp.Amount != null) {
+                oppIds.add(opp.Id);
+            }
+        }
+
+        if (!oppIds.isEmpty() && Limits.getQueueableJobs() < Limits.getLimitQueueableJobs()) {
+            System.enqueueJob(new ExchangeRateQueueable(oppIds));
         }
     }
 
