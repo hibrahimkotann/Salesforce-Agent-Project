@@ -1,0 +1,235 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Flow xmlns="http://soap.sforce.com/2006/04/metadata">
+    <apiVersion>66.0</apiVersion>
+    <assignments>
+        <name>Modify_And_Accumulate</name>
+        <label>Modify And Accumulate</label>
+        <locationX>176</locationX>
+        <locationY>638</locationY>
+        <assignmentItems>
+            <assignToReference>Loop_Opportunities.StageName</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <stringValue>Under Review</stringValue>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>Loop_Opportunities.Description</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>RiskNoteTemplate</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>varTotalAmount</assignToReference>
+            <operator>Add</operator>
+            <value>
+                <elementReference>Loop_Opportunities.Amount</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>varUpdatedOpps</assignToReference>
+            <operator>Add</operator>
+            <value>
+                <elementReference>Loop_Opportunities</elementReference>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>Loop_Opportunities</targetReference>
+        </connector>
+    </assignments>
+    <decisions>
+        <name>Check_Total_Amount</name>
+        <label>Check Total Amount</label>
+        <locationX>176</locationX>
+        <locationY>1118</locationY>
+        <defaultConnectorLabel>Under 500K</defaultConnectorLabel>
+        <rules>
+            <name>Over_500K</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>varTotalAmount</leftValueReference>
+                <operator>GreaterThan</operator>
+                <rightValue>
+                    <numberValue>500000.0</numberValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Create_Urgent_Task</targetReference>
+            </connector>
+            <label>Over 500K</label>
+        </rules>
+    </decisions>
+    <description>Account Customer_Risk_Level__c &quot;High&quot; olarak güncellendiğinde: açık Opportunity kayıtlarını &quot;Under Review&quot; yapar, risk notu düşer ve toplam tutar 500K USD üzerindeyse Account Owner'a acil Task atar.</description>
+    <environments>Default</environments>
+    <interviewLabel>Account_CustomerRisk_OpportunityReview {!$Flow.CurrentDateTime}</interviewLabel>
+    <label>Account Customer Risk - Opportunity Review</label>
+    <loops>
+        <name>Loop_Opportunities</name>
+        <label>Loop Opportunities</label>
+        <locationX>176</locationX>
+        <locationY>518</locationY>
+        <collectionReference>varOpportunities</collectionReference>
+        <iterationOrder>Asc</iterationOrder>
+        <nextValueConnector>
+            <targetReference>Modify_And_Accumulate</targetReference>
+        </nextValueConnector>
+        <noMoreValuesConnector>
+            <targetReference>Update_Opportunities</targetReference>
+        </noMoreValuesConnector>
+    </loops>
+    <processType>AutoLaunchedFlow</processType>
+    <recordCreates>
+        <name>Create_Urgent_Task</name>
+        <label>Create Urgent Task</label>
+        <locationX>176</locationX>
+        <locationY>1358</locationY>
+        <inputAssignments>
+            <field>ActivityDate</field>
+            <value>
+                <elementReference>$Flow.CurrentDate</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>Description</field>
+            <value>
+                <elementReference>TaskDescriptionTemplate</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>OwnerId</field>
+            <value>
+                <elementReference>$Record.OwnerId</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>Priority</field>
+            <value>
+                <stringValue>High</stringValue>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>Status</field>
+            <value>
+                <stringValue>Not Started</stringValue>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>Subject</field>
+            <value>
+                <stringValue>Acil Risk Değerlendirmesi - Toplam Tutar 500K USD Üzeri</stringValue>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>WhatId</field>
+            <value>
+                <elementReference>$Record.Id</elementReference>
+            </value>
+        </inputAssignments>
+        <object>Task</object>
+    </recordCreates>
+    <recordLookups>
+        <name>Get_Open_Opportunities</name>
+        <label>Get Open Opportunities</label>
+        <locationX>176</locationX>
+        <locationY>278</locationY>
+        <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
+        <connector>
+            <targetReference>Loop_Opportunities</targetReference>
+        </connector>
+        <filterLogic>and</filterLogic>
+        <filters>
+            <field>AccountId</field>
+            <operator>EqualTo</operator>
+            <value>
+                <elementReference>$Record.Id</elementReference>
+            </value>
+        </filters>
+        <filters>
+            <field>IsClosed</field>
+            <operator>EqualTo</operator>
+            <value>
+                <booleanValue>false</booleanValue>
+            </value>
+        </filters>
+        <getFirstRecordOnly>false</getFirstRecordOnly>
+        <object>Opportunity</object>
+        <outputReference>varOpportunities</outputReference>
+        <queriedFields>Id</queriedFields>
+        <queriedFields>Name</queriedFields>
+        <queriedFields>StageName</queriedFields>
+        <queriedFields>Amount</queriedFields>
+        <queriedFields>Description</queriedFields>
+    </recordLookups>
+    <recordUpdates>
+        <name>Update_Opportunities</name>
+        <label>Update Opportunities</label>
+        <locationX>176</locationX>
+        <locationY>878</locationY>
+        <connector>
+            <targetReference>Check_Total_Amount</targetReference>
+        </connector>
+        <inputReference>varUpdatedOpps</inputReference>
+    </recordUpdates>
+    <start>
+        <locationX>50</locationX>
+        <locationY>0</locationY>
+        <connector>
+            <targetReference>Get_Open_Opportunities</targetReference>
+        </connector>
+        <doesRequireRecordChangedToMeetCriteria>true</doesRequireRecordChangedToMeetCriteria>
+        <filterLogic>and</filterLogic>
+        <filters>
+            <field>Customer_Risk_Level__c</field>
+            <operator>EqualTo</operator>
+            <value>
+                <stringValue>High</stringValue>
+            </value>
+        </filters>
+        <object>Account</object>
+        <recordTriggerType>Update</recordTriggerType>
+        <triggerType>RecordAfterSave</triggerType>
+    </start>
+    <status>Active</status>
+    <textTemplates>
+        <name>RiskNoteTemplate</name>
+        <isViewedAsPlainText>true</isViewedAsPlainText>
+        <text>[RİSK NOTU] Bu fırsat, {!$Record.Name} hesabının risk seviyesinin "High" olarak değiştirilmesi nedeniyle incelemeye alınmıştır. Tarih: {!$Flow.CurrentDateTime}</text>
+    </textTemplates>
+    <textTemplates>
+        <name>TaskDescriptionTemplate</name>
+        <isViewedAsPlainText>true</isViewedAsPlainText>
+        <text>DİKKAT: {!$Record.Name} hesabının müşteri risk seviyesi "High" olarak güncellendi.
+
+Bu hesaba bağlı açık fırsatların toplam tutarı {!varTotalAmount} USD olup 500.000 USD eşiğini aşmaktadır.
+
+Tüm ilgili fırsatlar otomatik olarak "Under Review" durumuna alınmıştır. Lütfen acil değerlendirme yapınız.</text>
+    </textTemplates>
+    <variables>
+        <name>varOpportunities</name>
+        <dataType>SObject</dataType>
+        <isCollection>true</isCollection>
+        <isInput>false</isInput>
+        <isOutput>false</isOutput>
+        <objectType>Opportunity</objectType>
+    </variables>
+    <variables>
+        <name>varTotalAmount</name>
+        <dataType>Currency</dataType>
+        <isCollection>false</isCollection>
+        <isInput>false</isInput>
+        <isOutput>false</isOutput>
+        <scale>2</scale>
+        <value>
+            <numberValue>0.0</numberValue>
+        </value>
+    </variables>
+    <variables>
+        <name>varUpdatedOpps</name>
+        <dataType>SObject</dataType>
+        <isCollection>true</isCollection>
+        <isInput>false</isInput>
+        <isOutput>false</isOutput>
+        <objectType>Opportunity</objectType>
+    </variables>
+</Flow>

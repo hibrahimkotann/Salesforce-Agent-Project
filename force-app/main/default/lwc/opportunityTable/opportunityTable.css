@@ -1,0 +1,15 @@
+:host {
+    display: block;
+}
+
+.table-container {
+    min-height: 200px;
+    max-height: 500px;
+    overflow: auto;
+    border-radius: 8px;
+}
+
+.empty-state {
+    padding: 2rem;
+    color: var(--slds-g-color-neutral-base-60, #706e6b);
+}

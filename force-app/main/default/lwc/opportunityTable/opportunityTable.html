@@ -1,0 +1,35 @@
+<template>
+    <lightning-card title="Account Opportunities" icon-name="standard:opportunity">
+        <div class="slds-var-p-around_medium">
+            <template lwc:if={hasOpportunities}>
+                <div class="table-container" style="height: 400px;">
+                    <lightning-datatable
+                        key-field="Id"
+                        data={opportunityData}
+                        columns={columns}
+                        hide-checkbox-column
+                        show-row-number-column
+                        onrowaction={handleRowAction}
+                        enable-infinite-loading
+                    ></lightning-datatable>
+                </div>
+            </template>
+            <template lwc:elseif={hasError}>
+                <div class="slds-text-color_error slds-var-p-around_small">
+                    Fırsatlar yüklenirken hata oluştu.
+                </div>
+            </template>
+            <template lwc:else>
+                <div class="empty-state slds-text-align_center slds-var-p-around_large">
+                    <lightning-icon icon-name="standard:empty_state" size="large"></lightning-icon>
+                    <p class="slds-var-m-top_medium slds-text-heading_small">Bu hesaba bağlı fırsat bulunamadı.</p>
+                </div>
+            </template>
+        </div>
+        <div slot="footer">
+            <span class="slds-text-body_small slds-text-color_weak">
+                Toplam: {opportunityCount} fırsat
+            </span>
+        </div>
+    </lightning-card>
+</template>

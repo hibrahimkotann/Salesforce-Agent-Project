@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<StandardValueSet xmlns="http://soap.sforce.com/2006/04/metadata">
+    <sorted>false</sorted>
+    <standardValue>
+        <fullName>Prospecting</fullName>
+        <default>false</default>
+        <label>Prospecting</label>
+    </standardValue>
+    <standardValue>
+        <fullName>Qualification</fullName>
+        <default>false</default>
+        <label>Qualification</label>
+    </standardValue>
+    <standardValue>
+        <fullName>Needs Analysis</fullName>
+        <default>false</default>
+        <label>Needs Analysis</label>
+    </standardValue>
+    <standardValue>
+        <fullName>Value Proposition</fullName>
+        <default>false</default>
+        <label>Value Proposition</label>
+    </standardValue>
+    <standardValue>
+        <fullName>Id. Decision Makers</fullName>
+        <default>false</default>
+        <label>Id. Decision Makers</label>
+    </standardValue>
+    <standardValue>
+        <fullName>Perception Analysis</fullName>
+        <default>false</default>
+        <label>Perception Analysis</label>
+    </standardValue>
+    <standardValue>
+        <fullName>Proposal/Price Quote</fullName>
+        <default>false</default>
+        <label>Proposal/Price Quote</label>
+    </standardValue>
+    <standardValue>
+        <fullName>Negotiation/Review</fullName>
+        <default>false</default>
+        <label>Negotiation/Review</label>
+    </standardValue>
+    <standardValue>
+        <fullName>Under Review</fullName>
+        <default>false</default>
+        <label>Under Review</label>
+    </standardValue>
+    <standardValue>
+        <fullName>Closed Won</fullName>
+        <default>false</default>
+        <label>Closed Won</label>
+    </standardValue>
+    <standardValue>
+        <fullName>Closed Lost</fullName>
+        <default>false</default>
+        <label>Closed Lost</label>
+    </standardValue>
+</StandardValueSet>
